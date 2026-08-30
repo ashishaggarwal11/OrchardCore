@@ -55,7 +55,7 @@ per repo StyleCop conventions.
 
 ---
 
-## Phase 2 — `ReadingTimePart` model and `IReadingTimeService` calculation logic (pending)
+## Phase 2 — `ReadingTimePart` model and `IReadingTimeService` calculation logic (done)
 
 **Scope**: Implement the plain, unregistered `ReadingTimePart` model and the pure calculation
 service (`IReadingTimeService`/`ReadingTimeService`) that turns `HtmlBodyPart.Html` into a
