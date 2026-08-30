@@ -131,6 +131,7 @@
     <Project Path="src/OrchardCore.Modules/OrchardCore.Menu/OrchardCore.Menu.csproj" />
     <Project Path="src/OrchardCore.Modules/OrchardCore.Placements/OrchardCore.Placements.csproj" />
     <Project Path="src/OrchardCore.Modules/OrchardCore.PublishLater/OrchardCore.PublishLater.csproj" />
+    <Project Path="src/OrchardCore.Modules/OrchardCore.ReadingTime/OrchardCore.ReadingTime.csproj" />
     <Project Path="src/OrchardCore.Modules/OrchardCore.Queries/OrchardCore.Queries.csproj" />
     <Project Path="src/OrchardCore.Modules/OrchardCore.Rules/OrchardCore.Rules.csproj" />
     <Project Path="src/OrchardCore.Modules/OrchardCore.Search/OrchardCore.Search.csproj" />
