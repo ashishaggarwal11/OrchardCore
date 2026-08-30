@@ -1,6 +1,6 @@
 ---
 name: validator
-description: Runs qa-review then security-review against a developer agent's phase output and returns a merged, categorized error/warning report. Use as the validation step after a developer agent finishes a phase.
+description: Runs qa-review then security-review against a developer agent's phase output and returns a merged, categorized error/warning report. Given a plan file path and phase identifier, reads the phase's own requirement/acceptance criteria directly from the file and inspects the developer's changes itself. Use as the validation step after a developer agent finishes a phase.
 model: haiku
 tools: Read, Grep, Glob, Bash, Skill
 ---
@@ -11,8 +11,11 @@ developer↔validator cycles per phase before escalating to the user).
 
 ## Workflow
 
-1. Read the phase's requirement/acceptance criteria and the developer's diff/output as given by the
-   caller.
+1. The caller gives you a plan file path (e.g. `plan/<slug>.md`) and a phase identifier (name or
+   number) — not a pre-extracted requirement. Read the plan file yourself and locate the matching
+   phase section to get its requirement/acceptance criteria. If the file is missing or no phase
+   matches the identifier, say so rather than guessing. Then inspect the developer's actual changes
+   yourself (e.g. `git status`, `git diff`) instead of relying on the caller to paste a diff.
 2. Invoke the `qa-review` skill first. Let it validate the implementation against the requirement,
    generate/run test cases, and surface functional findings.
 3. Then invoke the `security-review` skill. Let it check the diff for security issues and, if a new
