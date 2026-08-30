@@ -23,7 +23,15 @@ Act as the orchestrator that turns a requirement document into working code, usi
    - If `plan/<slug>.md` already exists: read it directly to recover the current phases and their statuses.
      Do not re-invoke `planner` to regenerate phases that already exist.
 
-4. **Drive each phase in order**, skipping any phase already marked `done`:
+4. **Get plan approval.**
+   - Present the ordered list of phases to the user: each phase's title and its scope/acceptance criteria,
+     as recorded in the plan file.
+   - Ask the user to approve the plan before any implementation starts, or to request changes.
+   - If the user requests changes, call `planner` to update the plan file accordingly, then re-present the
+     updated phase list for approval. Repeat until the user explicitly approves.
+   - Do not proceed to phase execution until the plan is approved.
+
+5. **Drive each phase in order**, skipping any phase already marked `done`:
    - **Mark in-progress:** call `planner` and ask it to flip that phase's status to `in-progress` in the
      plan file. `planner` owns all edits to the plan file — never edit it yourself.
    - **Implement:** call the `developer` agent with just that phase's scope, files/areas, and acceptance
@@ -31,13 +39,22 @@ Act as the orchestrator that turns a requirement document into working code, usi
      code-checker status).
    - **Validate:** call the `validator` agent with that phase's acceptance criteria and the developer's
      reported output/diff.
-   - **On pass:** call `planner` to mark the phase `done`, then move to the next phase.
-   - **On fail:** relay validator's itemized findings back to `developer` for a fix-up pass, then
+   - **On pass:** present a concise summary of the phase to the user: phase title, files touched and what
+     changed (from the developer's report), and confirmation from `validator` that acceptance criteria were
+     met. Ask the user to approve these changes.
+     - **If approved:** call `planner` to mark the phase `done`. Then, commit the phase's changes locally
+       yourself: `git add` the specific files the `developer` agent reported changing (never a blanket
+       `-A`/`.`) plus the plan file, and `git commit` with a message referencing the phase, e.g.
+       `"<slug>: phase <n> - <phase title>"`. Do not push. Then move to the next phase.
+     - **If the user requests changes instead:** relay the user's feedback to `developer` for a fix-up
+       pass, then re-validate and re-present the updated summary for approval. This does not count against
+       the developer↔validator retry budget below — keep iterating with the user on their direct feedback.
+   - **On validator fail:** relay validator's itemized findings back to `developer` for a fix-up pass, then
      re-validate. Repeat for up to 3 developer↔validator cycles for this phase.
    - **If still failing after 3 cycles:** call `planner` to mark the phase `blocked`, stop processing
      further phases, and report the unresolved validator findings to the user instead of proceeding.
 
-5. **Report completion.** Once every phase is `done`, or the loop stopped early on a `blocked` phase, give
+6. **Report completion.** Once every phase is `done`, or the loop stopped early on a `blocked` phase, give
    the user a concise summary: which phases completed, any blocked phase and why, and the plan file path
    (`plan/<slug>.md`) for reference.
 
@@ -45,3 +62,7 @@ Constraints:
 - Only `planner` ever writes to the plan file. Your job is to sequence calls to `planner`, `developer`, and
   `validator` and relay information between them.
 - Give `developer` and `validator` only the single phase's data they need — never the whole plan file.
+- Committing after each completed phase is the orchestrator's own responsibility, not an agent's. Commits
+  are local only (never push). Stage only the files actually changed for that phase — no `git add -A`/`.`.
+- Never begin phase execution without explicit user approval of the plan.
+- Never commit a phase's changes without explicit user approval of that phase's summary.
