@@ -14,5 +14,21 @@
       "Bash(git clean:*)",
       "Bash(git reset --hard:*)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-cs-style.sh",
+            "timeout": 120,
+            "async": true,
+            "statusMessage": "Checking style/analyzers..."
+          }
+        ]
+      }
+    ]
   }
 }
